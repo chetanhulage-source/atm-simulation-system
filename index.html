@@ -1,0 +1,383 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATM Simulation System</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:Arial,sans-serif;
+  background:linear-gradient(135deg,#07111f,#112b46);
+  color:#fff;min-height:100vh;padding:24px
+}
+header{
+  max-width:1100px;margin:auto;display:flex;
+  justify-content:space-between;align-items:center;
+  padding:15px 0 25px;border-bottom:1px solid #ffffff20
+}
+.logo{font-size:23px;font-weight:bold;color:#55e6c1}
+.logo span{color:white}
+header small{color:#a9bdd1}
+main{
+  max-width:1000px;margin:35px auto;
+  display:grid;grid-template-columns:1fr 1.2fr;
+  gap:25px
+}
+.panel{
+  background:#10243a;border:1px solid #ffffff18;
+  padding:28px;border-radius:20px;
+  box-shadow:0 15px 40px #0003
+}
+h2{font-size:23px;margin-bottom:10px}
+.muted{color:#a9bdd1;font-size:14px;line-height:1.6}
+label{display:block;margin:20px 0 8px;color:#b9c9d9;font-size:14px}
+input{
+  width:100%;padding:14px;border-radius:10px;
+  border:1px solid #38536e;background:#091829;
+  color:white;font-size:16px;outline:none
+}
+input:focus{border-color:#55e6c1}
+button{
+  padding:13px;border:0;border-radius:10px;
+  font-weight:bold;cursor:pointer;font-size:14px;
+  transition:.2s
+}
+button:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.primary{background:#55e6c1;color:#06201b;width:100%;margin-top:16px}
+.secondary{background:#203b55;color:#fff}
+.danger{background:#61303b;color:#fff}
+.balance{
+  background:linear-gradient(120deg,#147d72,#164d68);
+  border-radius:16px;padding:23px;margin:20px 0
+}
+.balance small{color:#d2fff4}
+.amount{font-size:34px;font-weight:bold;margin-top:10px}
+.accountline{display:flex;justify-content:space-between;gap:10px;margin-top:15px;font-size:13px;color:#d2e7f5}
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}
+.menu button{min-height:58px}
+.menu button.active{background:#55e6c1;color:#06201b}
+.section{display:none}
+.section.active{display:block}
+.section h3{margin:20px 0 8px}
+.actions{display:flex;gap:10px}
+.actions button{flex:1;margin-top:12px}
+.message{font-size:14px;margin-top:15px;line-height:1.5;color:#55e6c1;overflow-wrap:anywhere}
+.error{color:#ff9999}
+.tx{
+  padding:13px 0;border-bottom:1px solid #ffffff15;
+  display:flex;justify-content:space-between;gap:12px;
+  font-size:14px
+}
+.tx small{display:block;color:#a9bdd1;margin-top:5px}
+.positive{color:#55e6c1}
+.negative{color:#ff9b9b}
+.footer{text-align:center;color:#8299b0;font-size:12px;margin:35px auto 10px;max-width:1000px}
+.hidden{display:none!important}
+@media(max-width:750px){
+  body{padding:15px}
+  main{grid-template-columns:1fr;margin-top:20px}
+  .panel{padding:22px}
+  header{gap:12px}
+  .logo{font-size:19px}
+  .amount{font-size:29px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ATM<span> SIMULATOR</span></div>
+  <small>OOPs C++ Micro Project</small>
+</header>
+
+<main>
+  <!-- LOGIN PANEL -->
+  <section class="panel" id="loginPanel">
+    <h2>Welcome back 👋</h2>
+    <p class="muted">Enter your demo account details to access the ATM dashboard.</p>
+
+    <form id="loginForm">
+      <label for="account">Account Number</label>
+      <input id="account" inputmode="numeric" value="1234567890" required maxlength="10">
+
+      <label for="pin">ATM PIN</label>
+      <input id="pin" type="password" inputmode="numeric" placeholder="Enter 4-digit PIN" required maxlength="4">
+
+      <button class="primary" type="submit">Secure Login →</button>
+    </form>
+    <p class="message" id="loginMessage">Demo account: 1234567890</p>
+    <p class="muted" style="margin-top:12px">Demo only. Do not enter real banking credentials.</p>
+  </section>
+
+  <!-- INFORMATION PANEL -->
+  <section class="panel" id="infoPanel">
+    <h2>Banking made simple.</h2>
+    <p class="muted">Explore a simulated ATM experience built around account management and basic banking operations.</p>
+    <div class="balance">
+      <small>DEMO ACCOUNT</small>
+      <div class="amount">₹10,000.00</div>
+      <div class="accountline"><span>Account holder</span><span>Chetan Hulage</span></div>
+      <div class="accountline"><span>Account number</span><span>•••• •••• 7890</span></div>
+    </div>
+    <h3>Project features</h3>
+    <p class="muted" style="margin-top:15px">✓ PIN authentication<br><br>✓ Deposit and withdrawal<br><br>✓ Balance enquiry<br><br>✓ Change PIN<br><br>✓ Transaction history</p>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section class="panel hidden" id="dashboard" style="grid-column:1/-1">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div>
+        <h2>Hello, Chetan! 👋</h2>
+        <p class="muted">Your personal ATM dashboard</p>
+      </div>
+      <button class="danger" id="logoutBtn">Logout</button>
+    </div>
+
+    <div class="balance">
+      <small>AVAILABLE BALANCE</small>
+      <div class="amount" id="balance">₹10,000.00</div>
+      <div class="accountline"><span>Account holder: Chetan Hulage</span><span>•••• 7890</span></div>
+    </div>
+
+    <div class="menu">
+      <button class="secondary active" data-page="overview">🏠 Overview</button>
+      <button class="secondary" data-page="deposit">＋ Deposit</button>
+      <button class="secondary" data-page="withdraw">↗ Withdraw</button>
+      <button class="secondary" data-page="history">▤ Transactions</button>
+      <button class="secondary" data-page="changePin">🔐 Change PIN</button>
+      <button class="secondary" data-page="details">👤 Account Details</button>
+    </div>
+
+    <div id="overview" class="section active">
+      <h3>Account overview</h3>
+      <p class="muted">Choose an operation above to manage your demo account.</p>
+      <div class="balance">
+        <small>ACCOUNT STATUS</small>
+        <h3 style="margin:10px 0 5px">● Active — Demo Mode</h3>
+        <p class="muted">This is a local simulation, not a real banking service.</p>
+      </div>
+    </div>
+
+    <div id="deposit" class="section">
+      <h3>Deposit money</h3>
+      <p class="muted">Enter an amount to add to your simulated account.</p>
+      <label for="depositAmount">Amount (₹)</label>
+      <input id="depositAmount" type="number" min="1" step="0.01" placeholder="e.g. 1000">
+      <button class="primary" id="depositBtn">Confirm Deposit</button>
+      <p class="message" id="depositMessage"></p>
+    </div>
+
+    <div id="withdraw" class="section">
+      <h3>Withdraw money</h3>
+      <p class="muted">Withdrawal is limited to your available balance.</p>
+      <label for="withdrawAmount">Amount (₹)</label>
+      <input id="withdrawAmount" type="number" min="100" step="100" placeholder="e.g. 500">
+      <button class="primary" id="withdrawBtn">Confirm Withdrawal</button>
+      <p class="message" id="withdrawMessage"></p>
+    </div>
+
+    <div id="history" class="section">
+      <h3>Transaction history</h3>
+      <p class="muted">Recent transactions in this browser session.</p>
+      <div id="transactions" style="margin-top:15px"></div>
+    </div>
+
+    <div id="changePin" class="section">
+      <h3>Change ATM PIN</h3>
+      <label for="oldPin">Current PIN</label>
+      <input id="oldPin" type="password" inputmode="numeric" maxlength="4" placeholder="Current PIN">
+      <label for="newPin">New 4-digit PIN</label>
+      <input id="newPin" type="password" inputmode="numeric" maxlength="4" placeholder="New PIN">
+      <button class="primary" id="changePinBtn">Update PIN</button>
+      <p class="message" id="pinMessage"></p>
+    </div>
+
+    <div id="details" class="section">
+      <h3>Account details</h3>
+      <div class="tx"><span>Account holder</span><strong>Chetan Hulage</strong></div>
+      <div class="tx"><span>Account number</span><strong>1234567890</strong></div>
+      <div class="tx"><span>Account type</span><strong>Savings (Demo)</strong></div>
+      <div class="tx"><span>Currency</span><strong>INR (₹)</strong></div>
+      <div class="tx"><span>System</span><strong>C++ OOPs Project Demo</strong></div>
+    </div>
+  </section>
+</main>
+
+<div class="footer">
+  ATM Simulation System · Educational project · Not connected to any bank
+</div>
+
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+
+let balance = 10000;
+let currentPIN = "2004";
+const accountNumber = "1234567890";
+let attempts = 0;
+let locked = false;
+let transactions = [];
+
+function money(value) {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency", currency: "INR"
+  }).format(value);
+}
+
+function message(id, text, error = false) {
+  $(id).textContent = text;
+  $(id).classList.toggle("error", error);
+}
+
+function updateBalance() {
+  $("balance").textContent = money(balance);
+}
+
+function addTransaction(type, amount) {
+  transactions.unshift({
+    type, amount,
+    time: new Date().toLocaleString("en-IN")
+  });
+  renderTransactions();
+}
+
+function renderTransactions() {
+  const container = $("transactions");
+  container.replaceChildren();
+
+  if (transactions.length === 0) {
+    const p = document.createElement("p");
+    p.className = "muted";
+    p.textContent = "No transactions yet.";
+    container.appendChild(p);
+    return;
+  }
+
+  transactions.forEach(tx => {
+    const row = document.createElement("div");
+    row.className = "tx";
+
+    const left = document.createElement("div");
+    const title = document.createElement("strong");
+    title.textContent = tx.type;
+    const time = document.createElement("small");
+    time.textContent = tx.time;
+    left.append(title, time);
+
+    const right = document.createElement("strong");
+    right.className = tx.type === "Deposit" ? "positive" : "negative";
+    right.textContent =
+      (tx.type === "Deposit" ? "+" : "−") + money(tx.amount);
+
+    row.append(left, right);
+    container.appendChild(row);
+  });
+}
+
+$("loginForm").addEventListener("submit", event => {
+  event.preventDefault();
+
+  if (locked) {
+    message("loginMessage", "Login locked. Reload the demo to reset.", true);
+    return;
+  }
+
+  const acc = $("account").value.trim();
+  const pin = $("pin").value.trim();
+
+  if (acc === accountNumber && pin === currentPIN) {
+    $("loginPanel").classList.add("hidden");
+    $("infoPanel").classList.add("hidden");
+    $("dashboard").classList.remove("hidden");
+    $("pin").value = "";
+    attempts = 0;
+    updateBalance();
+  } else {
+    attempts++;
+    const remaining = 3 - attempts;
+    if (attempts >= 3) {
+      locked = true;
+      $("loginForm").querySelector("button").disabled = true;
+      message("loginMessage", "Too many attempts. Reload to reset this demo.", true);
+    } else {
+      message("loginMessage", "Incorrect account number or PIN. Attempts left: " + remaining, true);
+    }
+  }
+});
+
+document.querySelectorAll("[data-page]").forEach(button => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll("[data-page]").forEach(b =>
+      b.classList.toggle("active", b === button)
+    );
+    document.querySelectorAll(".section").forEach(section =>
+      section.classList.toggle("active", section.id === button.dataset.page)
+    );
+  });
+});
+
+$("depositBtn").addEventListener("click", () => {
+  const amount = Number($("depositAmount").value);
+  if (!Number.isFinite(amount) || amount <= 0 || amount > 1000000) {
+    message("depositMessage", "Enter a valid amount up to ₹10,00,000.", true);
+    return;
+  }
+  balance += amount;
+  addTransaction("Deposit", amount);
+  updateBalance();
+  $("depositAmount").value = "";
+  message("depositMessage", "Deposit successful: " + money(amount));
+});
+
+$("withdrawBtn").addEventListener("click", () => {
+  const amount = Number($("withdrawAmount").value);
+  if (!Number.isFinite(amount) || amount <= 0 || amount % 100 !== 0) {
+    message("withdrawMessage", "Enter a positive amount in multiples of ₹100.", true);
+    return;
+  }
+  if (amount > balance) {
+    message("withdrawMessage", "Insufficient balance.", true);
+    return;
+  }
+  balance -= amount;
+  addTransaction("Withdrawal", amount);
+  updateBalance();
+  $("withdrawAmount").value = "";
+  message("withdrawMessage", "Withdrawal successful: " + money(amount));
+});
+
+$("changePinBtn").addEventListener("click", () => {
+  const oldPin = $("oldPin").value;
+  const newPin = $("newPin").value;
+
+  if (oldPin !== currentPIN) {
+    message("pinMessage", "Current PIN is incorrect.", true);
+    return;
+  }
+  if (!/^\d{4}$/.test(newPin) || newPin === currentPIN) {
+    message("pinMessage", "Choose a different 4-digit PIN.", true);
+    return;
+  }
+
+  currentPIN = newPin;
+  $("oldPin").value = "";
+  $("newPin").value = "";
+  message("pinMessage", "PIN changed for this session. Remember your new PIN.");
+});
+
+$("logoutBtn").addEventListener("click", () => {
+  $("dashboard").classList.add("hidden");
+  $("loginPanel").classList.remove("hidden");
+  $("infoPanel").classList.remove("hidden");
+  $("loginForm").reset();
+  $("account").value = accountNumber;
+  message("loginMessage", "Logged out. Sign in again to continue.");
+  document.querySelector('[data-page="overview"]').click();
+});
+</script>
+</body>
+</html>
